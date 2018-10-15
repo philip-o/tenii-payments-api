@@ -66,5 +66,7 @@ class UserActor extends Actor with MangoPayHelper with LazyLogging {
         senderRef ! CreateTeniiPaymentUserResponse(request.teniiUserId, Some("Failed to create user"))
         logger.error(s"Failed to create user: $userResult")
       }
+
+    case other => logger.error(s"Received unknown message $other")
   }
 }
