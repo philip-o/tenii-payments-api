@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.{Directives, Route}
 import akka.pattern.{CircuitBreaker, ask}
 import akka.util.Timeout
 import com.ogunleye.tenii.payments.actors.TellerActor
-import com.ogunleye.tenii.payments.model.api.{TellerTeniiPotCreateRequest, TellerTeniiPotCreateResponse, TellerTeniiPotCreditRequest, TellerTeniiPotCreditResponse}
+import com.ogunleye.tenii.payments.model.api._
 import com.typesafe.scalalogging.LazyLogging
 import javax.ws.rs.Path
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -17,14 +17,14 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 @Path("/teller")
-class TellerRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends Directives with LazyLogging {
+class TellerRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends RequestDirectives with LazyLogging {
 
   implicit val executor: ExecutionContext = system.dispatcher
   implicit val timeout: Timeout = Timeout(10.seconds)
   protected val tellerActor: ActorRef = system.actorOf(Props[TellerActor])
 
   def route: Route = pathPrefix("teller") {
-    addToTeniiPot ~ createPot
+    addToTeniiPot ~ createPot ~ getPot
   }
 
   def addToTeniiPot: Route =
@@ -46,6 +46,18 @@ class TellerRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends
         onCompleteWithBreaker(breaker)(tellerActor ? request) {
           case Success(msg: TellerTeniiPotCreateResponse) if msg.cause.isEmpty => complete(StatusCodes.Created -> msg)
           case Success(msg: TellerTeniiPotCreateResponse) => complete(StatusCodes.InternalServerError -> msg)
+          case Failure(t) => failWith(t)
+        }
+      }
+    }
+
+  def getPot: Route =
+    get {
+      path(potSegment).as(TellerTeniiPotGetRequest) { request =>
+        logger.info(s"POST /teller/${request.tellerUserId}")
+        onCompleteWithBreaker(breaker)(tellerActor ? request) {
+          case Success(msg: TellerTeniiPotGetResponse) if msg.cause.isEmpty => complete(StatusCodes.OK -> msg)
+          case Success(msg: TellerTeniiPotGetResponse) => complete(StatusCodes.InternalServerError -> msg)
           case Failure(t) => failWith(t)
         }
       }
