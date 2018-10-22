@@ -21,7 +21,7 @@ class TellerTeniiPotConnection extends ObjectMongoConnection[TellerTeniiPot] wit
     TellerTeniiPot(
       Some(getObjectId(obj, "_id")),
       getString(obj, "tellerUserId"),
-      getInt(obj, "limit"),
+      getDouble(obj, "limit").toInt,
       getDouble(obj, "amount")
     )
   }
