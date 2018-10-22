@@ -3,7 +3,6 @@ package com.ogunleye.tenii.payments.actors
 import akka.actor.Actor
 import com.ogunleye.tenii.payments.implicits.PotImplicit
 import com.ogunleye.tenii.payments.db.TellerTeniiPotConnection
-import com.ogunleye.tenii.payments.model.api
 import com.ogunleye.tenii.payments.model.api._
 import com.ogunleye.tenii.payments.model.db.TellerTeniiPot
 import com.typesafe.scalalogging.LazyLogging

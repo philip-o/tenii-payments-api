@@ -4,7 +4,7 @@ case class TellerTeniiPotCreditRequest(tellerUserId: String, amount: Double)
 
 case class TellerTeniiPotCreditResponse(tellerUserId: String, cause: Option[String] = None)
 
-case class TellerTeniiPotCreateRequest(tellerUserId: String, limit: Double)
+case class TellerTeniiPotCreateRequest(tellerUserId: String, limit: Int)
 
 case class TellerTeniiPotCreateResponse(tellerUserId: String, cause: Option[String] = None)
 
