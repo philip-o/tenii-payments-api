@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.{Directive1, Directives, PathMatcher1}
 trait RequestDirectives extends Directives {
 
   val potSegment: PathMatcher1[String] = Segment
+  val userIdSegment: PathMatcher1[String] = Segment
 
 
   //val prebookingTokenDirective = parameter("preBookingToken".?).map(_.map(PreBookingToken))

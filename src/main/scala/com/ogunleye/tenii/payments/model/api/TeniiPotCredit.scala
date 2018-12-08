@@ -1,5 +1,7 @@
 package com.ogunleye.tenii.payments.model.api
 
-case class TeniiPotCreditRequest(userId: String, amount: Double)
+import com.ogunleye.tenii.payments.model.Pot
 
-case class TeniiPotCreditResponse(userId: String, cause: Option[String] = None)
+case class TeniiPotCreditRequest(teniiId: String, amount: Double)
+
+case class TeniiPotCreditResponse(pot: Option[Pot], cause: Option[String] = None)

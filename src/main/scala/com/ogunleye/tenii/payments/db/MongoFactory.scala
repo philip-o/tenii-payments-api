@@ -4,8 +4,6 @@ import java.util.Date
 
 import com.mongodb.casbah.{ Imports, TypeImports }
 import com.mongodb.casbah.Imports._
-import com.ogunleye.tenii.payments.model.db
-import com.ogunleye.tenii.payments.model.db.{ TeniiBankAccount, TeniiPot }
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Properties
@@ -89,24 +87,6 @@ trait ObjectMongoConnection[A] extends LazyLogging {
   protected def getDate(obj: MongoDBObject, name: String): Date = getVar(obj, name).getOrElse(new Date).asInstanceOf[Date]
 
   protected def getBoolean(obj: MongoDBObject, name: String): Boolean = getVar(obj, name).getOrElse(false).asInstanceOf[Boolean]
-
-  protected def getWallet(obj: MongoDBObject, name: String): TeniiPot = {
-    val res = getBasicDBList(obj, name).get
-    db.TeniiPot(
-      res.get(0).asInstanceOf[String],
-      res.get(1).asInstanceOf[Double]
-    )
-  }
-
-  protected def getTeniiBankAccount(obj: MongoDBObject, name: String): TeniiBankAccount = {
-    val res = getBasicDBList(obj, name).get
-    TeniiBankAccount(
-      res.get(0).asInstanceOf[String],
-      res.get(1).asInstanceOf[String],
-      res.get(2).asInstanceOf[String],
-      res.get(3).asInstanceOf[String]
-    )
-  }
 
   protected def getObject[B](obj: MongoDBObject, name: String): B = getVar(obj, name).get.asInstanceOf[B]
 
