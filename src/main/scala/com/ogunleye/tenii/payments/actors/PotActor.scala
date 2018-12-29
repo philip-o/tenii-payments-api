@@ -23,6 +23,7 @@ class PotActor extends Actor with LazyLogging with PotImplicit {
       } onComplete {
         case Success(res) => res match {
           case Some(pot) => val p = pot.copy(amount = pot.amount + request.amount)
+            logger.info(s"Pot value before: ${pot.amount}, now ${p.amount}")
             Future {
               connection.save(p)
             } onComplete {
