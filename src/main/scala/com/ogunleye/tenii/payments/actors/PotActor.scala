@@ -22,7 +22,7 @@ class PotActor extends Actor with LazyLogging with PotImplicit {
         connection.findByUserId(request.teniiId)
       } onComplete {
         case Success(res) => res match {
-          case Some(pot) => val p = pot.copy(amount = pot.amount + request.amount)
+          case Some(pot) => val p = pot.copy(amount = roundTo2DPAsDouble(pot.amount + request.amount))
             logger.info(s"Pot value before: ${pot.amount}, now ${p.amount}")
             Future {
               connection.save(p)
@@ -89,6 +89,10 @@ class PotActor extends Actor with LazyLogging with PotImplicit {
       }
 
     case other => logger.error(s"Received unknown message $other")
+  }
+
+  def roundTo2DPAsDouble(value: Double): Double = {
+    BigDecimal(value).setScale(2, BigDecimal.RoundingMode.UP).toDouble
   }
 
 }
