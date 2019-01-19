@@ -10,6 +10,7 @@ import com.ogunleye.tenii.payments.model.api._
 import com.typesafe.scalalogging.LazyLogging
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
+import io.swagger.annotations._
 import javax.ws.rs.Path
 
 import scala.concurrent.duration._
@@ -17,6 +18,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 @Path("/pot")
+@Api(value = "/pot", description = "User's pot", produces = "application/json")
 class PotRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends RequestDirectives with LazyLogging {
 
   implicit val executor: ExecutionContext = system.dispatcher
@@ -36,9 +38,9 @@ class PotRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends Re
           case Success(msg: TeniiTransferResponse) if msg.cause.isEmpty => complete(StatusCodes.OK -> msg)
           case Success(msg: TeniiTransferResponse) => complete(StatusCodes.InternalServerError -> msg)
           case Failure(t) => failWith(t)
+          }
         }
       }
-    }
     }
 
     def createTeniiPot: Route =
@@ -53,6 +55,25 @@ class PotRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends Re
           }
       }
 
+  @Path("{teniiId}/balance")
+  @ApiOperation(
+    httpMethod = "GET",
+    response = classOf[GetPotResponse],
+    value = "Get the user's pot",
+    consumes = "application/json",
+    notes =
+      """
+         Get the user's pot
+      """
+  )
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "teniiId", dataType = "string", value = "The tenii Id for the user to find their pot", paramType = "body", required = true)
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Ok", response = classOf[GetPotResponse]),
+    new ApiResponse(code = 400, message = "Bad request", response = classOf[GetPotResponse]),
+    new ApiResponse(code = 500, message = "Internal Server Error", response = classOf[Throwable])
+  ))
   def getPot: Route =
     get {
       path(userIdSegment / "balance").as(GetPotRequest) {
@@ -60,7 +81,7 @@ class PotRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends Re
           logger.info(s"GET /pot/${request.teniiId}/balance")
           onCompleteWithBreaker(breaker)(potActor ? request) {
             case Success(msg: GetPotResponse) if msg.msg.isEmpty => complete(StatusCodes.OK -> msg)
-            case Success(msg: GetPotResponse) => complete(StatusCodes.InternalServerError -> msg)
+            case Success(msg: GetPotResponse) => complete(StatusCodes.BadRequest -> msg)
             case Failure(t) => failWith(t)
           }
       }
