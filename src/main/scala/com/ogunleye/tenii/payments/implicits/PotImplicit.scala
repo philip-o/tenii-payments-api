@@ -1,8 +1,8 @@
 package com.ogunleye.tenii.payments.implicits
 
-import com.ogunleye.tenii.payments.model.api.PotCreateRequest
+import com.ogunleye.tenii.payments.model.api.{PotCreateRequest, PotResponse}
 import com.ogunleye.tenii.payments.model.db.Pot
-import com.ogunleye.tenii.payments.model.{ Pot => APIPot}
+import com.ogunleye.tenii.payments.model.{Pot => APIPot}
 
 trait PotImplicit {
 
@@ -17,6 +17,13 @@ trait PotImplicit {
   implicit def toAPIPot(pot: Pot) = {
     APIPot(
       pot.teniiId,
+      pot.limit,
+      pot.amount
+    )
+  }
+
+  implicit def toPotResponse(pot: Pot) = {
+    PotResponse(
       pot.limit,
       pot.amount
     )

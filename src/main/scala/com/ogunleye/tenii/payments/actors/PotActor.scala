@@ -44,12 +44,12 @@ class PotActor extends Actor with LazyLogging with PotImplicit {
         connection.findByUserId(request.teniiId)
       } onComplete {
         case Success(res) => res match {
-          case Some(pot) => senderRef ! GetPotResponse(Some(pot))
+          case Some(pot) => senderRef ! GetPotResponse(pot)
           case None => logger.error(s"Failed to find pot for request: $request")
-            senderRef ! GetPotResponse(None, Some(s"Failed to find pot for request: $request"))
+            senderRef ! ErrorResponse("NO_USER", Some(s"Failed to find pot for request: $request"))
         }
         case Failure(t) => logger.error(s"Failed to find pot for request: $request", t)
-          senderRef ! GetPotResponse(None, Some(s"Failed to find pot for request: $request"))
+          senderRef ! ErrorResponse("SEARCH_FAILURE", Some(s"Search failed due to ${t.getMessage}"))
       }
 //
 //    case request: TeniiTransferRequest =>

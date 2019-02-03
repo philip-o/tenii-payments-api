@@ -2,7 +2,7 @@ package com.ogunleye.tenii.payments.routes
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{Directives, Route}
+import akka.http.scaladsl.server.Route
 import akka.pattern.{CircuitBreaker, ask}
 import akka.util.Timeout
 import com.ogunleye.tenii.payments.actors.PotActor
@@ -71,7 +71,7 @@ class PotRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends Re
   ))
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Ok", response = classOf[GetPotResponse]),
-    new ApiResponse(code = 400, message = "Bad request", response = classOf[GetPotResponse]),
+    new ApiResponse(code = 400, message = "Bad request", response = classOf[ErrorResponse]),
     new ApiResponse(code = 500, message = "Internal Server Error", response = classOf[Throwable])
   ))
   def getPot: Route =
@@ -80,8 +80,8 @@ class PotRoute(implicit system: ActorSystem, breaker: CircuitBreaker) extends Re
         request =>
           logger.info(s"GET /pot/${request.teniiId}/balance")
           onCompleteWithBreaker(breaker)(potActor ? request) {
-            case Success(msg: GetPotResponse) if msg.msg.isEmpty => complete(StatusCodes.OK -> msg)
-            case Success(msg: GetPotResponse) => complete(StatusCodes.BadRequest -> msg)
+            case Success(msg: GetPotResponse) => complete(StatusCodes.OK -> msg)
+            case Success(msg: ErrorResponse) => complete(StatusCodes.BadRequest -> msg)
             case Failure(t) => failWith(t)
           }
       }
