@@ -45,8 +45,8 @@ class PotActor extends Actor with LazyLogging with PotImplicit {
       } onComplete {
         case Success(res) => res match {
           case Some(pot) => senderRef ! GetPotResponse(pot)
-          case None => logger.error(s"Failed to find pot for request: $request")
-            senderRef ! ErrorResponse("NO_USER", Some(s"Failed to find pot for request: $request"))
+          case None => logger.error(s"Failed to find pot for request: ${request.teniiId}")
+            senderRef ! ErrorResponse("NO_USER", Some(s"Failed to find pot for request: ${request.teniiId}"))
         }
         case Failure(t) => logger.error(s"Failed to find pot for request: $request", t)
           senderRef ! ErrorResponse("SEARCH_FAILURE", Some(s"Search failed due to ${t.getMessage}"))
