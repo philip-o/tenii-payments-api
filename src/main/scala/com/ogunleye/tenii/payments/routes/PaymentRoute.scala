@@ -11,7 +11,6 @@ import com.typesafe.scalalogging.LazyLogging
 import javax.ws.rs.Path
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
-import io.swagger.annotations._
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
