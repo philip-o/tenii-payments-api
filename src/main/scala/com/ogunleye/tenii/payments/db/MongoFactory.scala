@@ -7,8 +7,6 @@ import com.mongodb.casbah.Imports._
 import com.ogunleye.tenii.payments.config.Settings
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.util.Properties
-
 object MongoFactory {
   private val DATABASE = Settings.database
   val uri = MongoClientURI(s"mongodb://${Settings.host}/$DATABASE")
