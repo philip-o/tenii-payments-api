@@ -80,14 +80,23 @@ class PotActor extends Actor with LazyLogging with PotImplicit {
     case request: PotCreateRequest =>
       val senderRef = sender()
       Future {
-        connection.save(request)
+        connection.findByUserId(request.teniiId)
       } onComplete {
-        case Success(_) => logger.info(s"Pot created for user: ${request.teniiId}")
-          senderRef ! PotCreateResponse(Some(Pot(request.teniiId, request.limit)))
+        case Success(res) => res match {
+          case Some(_) => logger.error(s"User already has pot.  Failed to create pot for request: $request")
+            senderRef ! PotCreateResponse(None, Some("User already has pot"))
+          case None => Future {
+            connection.save(request)
+          } onComplete {
+            case Success(_) => logger.info(s"Pot created for user: ${request.teniiId}")
+              senderRef ! PotCreateResponse(Some(Pot(request.teniiId, request.limit)))
+            case Failure(t) => logger.error(s"Failed to create pot for request: $request", t)
+              senderRef ! PotCreateResponse(None, Some("Failed to create pot"))
+          }
+        }
         case Failure(t) => logger.error(s"Failed to create pot for request: $request", t)
           senderRef ! PotCreateResponse(None, Some("Failed to create pot"))
       }
-
     case other => logger.error(s"Received unknown message $other")
   }
 
